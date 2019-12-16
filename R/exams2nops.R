@@ -176,7 +176,7 @@ rval <- c(
 sprintf("\\documentclass[10pt,a4paper%s]{article}", if(twocolumn) ",twocolumn" else ""),
 "
 \\usepackage{graphicx,color}
-\\usepackage{amsmath,amssymb,latexsym}
+\\usepackage{amsmath}
 \\usepackage{verbatim,url,fancyvrb,ae}
 \\usepackage{multicol,a4wide,pdfpages}
 \\usepackage{booktabs,longtable,eurosym,textcomp}
