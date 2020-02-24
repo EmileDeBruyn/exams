@@ -59,7 +59,9 @@ make_exercise_transform_pandoc <- function(to = "latex", base64 = to != "latex",
       "question" = list(x$question),
       "questionlist" = as.list(x$questionlist),
       "solution" = list(x$solution),
-      "solutionlist" = as.list(x$solutionlist)
+      "solutionlist" = as.list(x$solutionlist),
+      "attainment" = list(x$attainment),
+      "attainmentlist" = as.list(x$attainmentlist)
     )
 
     ## transform the .tex chunks
@@ -107,15 +109,18 @@ make_exercise_transform_pandoc <- function(to = "latex", base64 = to != "latex",
     x$questionlist <- unname(sapply(trex[grep("questionlist", namtrex)], paste, collapse = "\n"))
     x$solution <- trex$solution
     x$solutionlist <- unname(sapply(trex[grep("solutionlist", namtrex)], paste, collapse = "\n"))
+    x$attainment <- trex$attainment
+    x$attainmentlist <- unname(sapply(trex[grep("attainmentlist", namtrex)], paste, collapse = "\n"))
 
-    for(j in c("question", "questionlist", "solution", "solutionlist")) {
+    for(j in c("question", "questionlist", "solution", "solutionlist", "attainment", "attainmentlist")) {
       if(length(x[[j]]) < 1L) x[j] <- structure(list(NULL), .Names = j)
     }
     
-    ## remove leading and trailing <p> tags in question/solution lists
+    ## remove leading and trailing <p> tags in question/solution/attainment lists
     if(substr(to, 1L, 4L) == "html") {
       x$questionlist <- gsub("^<p>", "", gsub("</p>$", "", x$questionlist))
       x$solutionlist <- gsub("^<p>", "", gsub("</p>$", "", x$solutionlist))
+      x$attainmentlist <- gsub("^<p>", "", gsub("</p>$", "", x$attainmentlist))
     }
     
     setwd(owd)

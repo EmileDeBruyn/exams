@@ -165,7 +165,7 @@ make_exams_write_pdf <- function(template = "plain", inputs = NULL,
         supps[dups] <- nfn
 
         dups_graphics_gsub <- function(pattern, replacement, x) {
-          for(i in c("question", "questionlist", "solution", "solutionlist")) {
+          for(i in c("question", "questionlist", "solution", "solutionlist", "attainment", "attainmentlist")) {
             if(length(x[[i]])) {
               if(any(ix <- grepl("includegraphics{", x[[i]], fixed = TRUE))) {
                 x[[i]][ix] <- gsub("(includegraphics\\{[[:graph:]]+\\})", "\\1.image", x[[i]][ix])
@@ -214,6 +214,7 @@ make_exams_write_pdf <- function(template = "plain", inputs = NULL,
         if(!is.list(exm[[j]]$questionlist)) exm[[j]]$questionlist <- as.list(exm[[j]]$questionlist)
         exm[[j]]$questionlist <- sapply(split(exm[[j]]$questionlist, g), collapse)
         if(!is.null(exm[[j]]$solutionlist)) exm[[j]]$solutionlist <- sapply(split(exm[[j]]$solutionlist, g), collapse)
+        if(!is.null(exm[[j]]$attainmentlist)) exm[[j]]$attainmentlist <- sapply(split(exm[[j]]$attainmentlist, g), collapse)
         for(qj in seq_along(exm[[j]]$questionlist)) {
           if(any(grepl(paste("##ANSWER", qj, "##", sep = ""), exm[[j]]$question, fixed = TRUE))) {
             ans <- exm[[j]]$questionlist[qj]
@@ -224,27 +225,36 @@ make_exams_write_pdf <- function(template = "plain", inputs = NULL,
         }
       }
       
-      ## combine question+questionlist and solution+solutionlist
+      ## combine question+questionlist and solution+solutionlist and attainment+attainmentlist
       writeLines(c(
         "",
-	"\\begin{question}",
+        "\\begin{question}",
         exm[[j]]$question,
-	if(is.null(exm[[j]]$questionlist) || length(ql <- na.omit(exm[[j]]$questionlist)) == 0) NULL else c(
-        "\\begin{answerlist}",
-        paste("  \\item", ql),
-        "\\end{answerlist}"),
-	"\\end{question}",
-	"",
+        if(is.null(exm[[j]]$questionlist) || length(ql <- na.omit(exm[[j]]$questionlist)) == 0) NULL else c(
+                                                                                                            "\\begin{answerlist}",
+                                                                                                            paste("  \\item", ql),
+                                                                                                            "\\end{answerlist}"),
+        "\\end{question}",
+        "",
         if(length(exm[[j]]$solution) | length(exm[[j]]$solutionlist)) {
-	  c("\\begin{solution}",
+          c("\\begin{solution}",
             if(length(exm[[j]]$solution)) exm[[j]]$solution else NULL,
-	    if(is.null(exm[[j]]$solutionlist)) NULL else c(
-	      "\\begin{answerlist}",
-              paste("  \\item", exm[[j]]$solutionlist),
-	      "\\end{answerlist}"),
-	    "\\end{solution}")
+            if(is.null(exm[[j]]$solutionlist)) NULL else c(
+                                                           "\\begin{answerlist}",
+                                                           paste("  \\item", exm[[j]]$solutionlist),
+                                                           "\\end{answerlist}"),
+            "\\end{solution}")
         } else NULL,
-	""), paste(fil[j], ".tex", sep = ""))
+        if(length(exm[[j]]$attainment) | length(exm[[j]]$attainmentlist)) {
+          c("\\begin{attainment}",
+            if(length(exm[[j]]$attainment)) exm[[j]]$attainment else NULL,
+            if(is.null(exm[[j]]$attainmentlist)) NULL else c(
+                                                             "\\begin{answerlist}",
+                                                             paste("  \\item", exm[[j]]$attainmentlist),
+                                                             "\\end{answerlist}"),
+            "\\end{attainment}")
+        } else NULL,
+        ""), paste(fil[j], ".tex", sep = ""))
     }
 
     ## assign names for output files

@@ -54,6 +54,15 @@ read_exercise <- function(file, markup = NULL)
     solution <- zap_text_if_empty(solution[-(sl[1L]:sl[2L])])
   }
 
+  ## process attainment
+  attainment <- extract_environment(x, "attainment", markup = markup)
+  attainmentlist <- at <- extract_environment(attainment, "answerlist", value = FALSE, markup = markup)
+  if(!is.null(attainmentlist)) {
+    ati <- if(markup == "latex") (at[1L] + 1L):(at[2L] - 1L) else (at[1L] + 2L):at[2L]
+    attainmentlist <- extract_items(attainment[ati], markup = markup)
+    attainment <- zap_text_if_empty(attainment[-(at[1L]:at[2L])])
+  }
+
   metainfo <- read_metainfo(file)
   
   ## consistency checks
@@ -84,6 +93,7 @@ read_exercise <- function(file, markup = NULL)
     }
     questionlist <- questionlist[o]
     solutionlist <- solutionlist[o]
+    attainmentlist <- attainmentlist[o]
     metainfo$solution <- metainfo$solution[o]
     metainfo$tolerance <- metainfo$tolerance[o]
     metainfo$string <- if(metainfo$type == "schoice") {
@@ -98,6 +108,7 @@ read_exercise <- function(file, markup = NULL)
     gr <- rep.int(1L:metainfo$length, sapply(metainfo$solution, length))
     questionlist <- split(questionlist, gr)
     solutionlist <- split(solutionlist, gr)
+    attainmentlist <- split(attainmentlist, gr)
     for(i in which(metainfo$clozetype %in% c("schoice", "mchoice"))) {
       o <- sample(length(questionlist[[i]]))
       if(is.numeric(metainfo$shuffle)) {
@@ -114,10 +125,12 @@ read_exercise <- function(file, markup = NULL)
       }
       questionlist[[i]] <- questionlist[[i]][o]
       solutionlist[[i]] <- solutionlist[[i]][o]
+      attainmentlist[[i]] <- attainmentlist[[i]][o]
       metainfo$solution[[i]] <- metainfo$solution[[i]][o]
     }
     questionlist <- unlist(questionlist)
     solutionlist <- unlist(solutionlist)
+    attainmentlist <- unlist(attainmentlist)
     metainfo$string <- paste(metainfo$name, ": ", paste(sapply(metainfo$solution, paste, collapse = ", "), collapse = " | "), sep = "")
   }
   
@@ -127,6 +140,8 @@ read_exercise <- function(file, markup = NULL)
     questionlist = questionlist,
     solution = solution,
     solutionlist = solutionlist,
+    attainment = attainment,
+    attainmentlist = attainmentlist,
     metainfo = metainfo
   )
 }
