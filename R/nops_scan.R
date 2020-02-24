@@ -424,7 +424,7 @@ read_nops_digits <- function(x, type = c("type", "id", "scrambling"), tesseract 
     })
   n <- switch(type,
     "type" = 3L,
-    "id" = 11L,
+    "id" = 7L,
     "scrambling" = 2L)
 
   ## split

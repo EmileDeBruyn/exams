@@ -3,7 +3,8 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = NULL, name = NULL,
   institution = "R University", logo = "Rlogo.png", date = Sys.Date(), 
   replacement = FALSE, intro = NULL, blank = NULL, duplex = TRUE, pages = NULL,
   usepackage = NULL, header = NULL, encoding = "", startid = 1L, points = NULL,
-  showpoints = FALSE, samepage = FALSE, twocolumn = FALSE, reglength = 7L, ...)
+  showpoints = FALSE, samepage = FALSE, twocolumn = FALSE, reglength = 7L,
+  takers = FALSE, ...)
 {
   ## try to restore random seed after single trial exam (introduced in version 2.3-1)
   ## initialize the RNG if necessary
@@ -15,8 +16,8 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = NULL, name = NULL,
   if(!is.null(pages)) pages <- sapply(pages, file_path_as_absolute)
 
   ## header: date, id, usepackage
-  Date2ID <- function(date) function(i) paste(format(date, "%y%m%d"),
-    formatC(i + startid - 1L, width = 5, flag = 0, format = "f", digits = 0), sep = "")
+  ## Date2ID <- function(date) function(i) paste(format(date, "%y%m%d"),
+  Date2ID <- function(date) function(i) formatC(i + startid - 1L, width = 7, flag = 0, format = "f", digits = 0)
   if(!inherits(date, "Date")) date <- as.Date(date)
   d2id <- Date2ID(date)
   if(!is.null(usepackage)) {
@@ -43,6 +44,8 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = NULL, name = NULL,
     "Warning", "Answers", "FillAnswers", "Point", "Points")]
   ## header: collect everything
   header <- c(list(Date = date, ID = d2id), usepackage, loc, lang, as.list(header))
+  ## header: test participants
+  if(is.list(takers)) append(header, takers)
 
   ## determine number of alternative choices (and non-supported cloze exercises)
   ## for all (unique) exercises in the exam
